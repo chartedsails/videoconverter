@@ -1,9 +1,5 @@
-import path from "path"
+import { mockVideoPath } from "~/__mocks/mock-videos"
 import { createVideoInfo } from "./video-info"
-
-const mockVideoPath = (name: string) => {
-  return path.join(__dirname, "../../../mockvideos", name)
-}
 
 describe("it can extract video info", () => {
   it("fails if the file does not exist", (done) => {
@@ -30,9 +26,7 @@ describe("it can extract video info", () => {
   })
 
   it("can detect gopro track in video file", async () => {
-    const v = await createVideoInfo(
-      mockVideoPath("gpmd.mp4")
-    )
+    const v = await createVideoInfo(mockVideoPath("gpmd.mp4"))
     expect(v.goproTelemetry).toBe(true)
   })
 })

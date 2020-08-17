@@ -1,5 +1,6 @@
+import { contextBridge, ipcRenderer } from "electron"
 import logger from "electron-log"
-import { ipcRenderer, contextBridge } from "electron"
+import { Video } from "~/shared/Video"
 import { VideoConverterIPC } from "~/shared/VideoConverterIPC"
 
 logger.info("Preload")
@@ -11,8 +12,12 @@ const ipcBridge: VideoConverterIPC = {
   },
   setVideoUpdatedListener: (listener) => {
     ipcRenderer.removeAllListeners("update-video")
-    ipcRenderer.on("update-video", (event, video) => {
-      logger.debug(`IPC <= video-update`, video)
+    ipcRenderer.on("update-video", (event, video: Video) => {
+      const loggedVideo: Video = {
+        ...video,
+        thumbnailData: video.thumbnailData?.slice(0, 42) + "...",
+      }
+      logger.debug(`IPC <= video-update`, loggedVideo)
       listener(video)
     })
   },

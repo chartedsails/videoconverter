@@ -1,12 +1,14 @@
-import { makeStyles, Paper, Typography, Chip } from "@material-ui/core"
-import React from "react"
-import clsx from "clsx"
-import ImageMissing from "@material-ui/icons/ImageTwoTone"
-import GPSIcon from "@material-ui/icons/SatelliteTwoTone"
+import { Chip, makeStyles, Paper, Typography } from "@material-ui/core"
 import ResolutionIcon from "@material-ui/icons/AspectRatio"
 import ConversionNotNeededIcon from "@material-ui/icons/BeenhereTwoTone"
 import ConversionNeededIcon from "@material-ui/icons/FitnessCenterTwoTone"
+import ImageMissing from "@material-ui/icons/ImageTwoTone"
+import GPSIcon from "@material-ui/icons/SatelliteTwoTone"
+import clsx from "clsx"
+import React from "react"
 import { Video } from "~/shared/Video"
+import { formatChrono } from "~/util/format-duration"
+import { formatBytes } from "~/util/format-size"
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -18,6 +20,11 @@ const useStyles = makeStyles((theme) => ({
     width: 100,
     textAlign: "center",
     alignSelf: "center",
+    "& img": {
+      maxWidth: "100%",
+      boxShadow: theme.shadows[6],
+    },
+    marginRight: theme.spacing(2),
   },
   details: {
     display: "flex",
@@ -69,7 +76,9 @@ export const VideoPanel = ({ className, video }: IProps) => {
       </div>
       <div className={classes.details}>
         <Typography>
-          {basename} - {video.size}
+          {basename} -{" "}
+          {video.duration !== undefined && `${formatChrono(video.duration)} - `}
+          {formatBytes(video.size)}
         </Typography>
         <div className={classes.badges}>
           {video.goproTelemetry !== undefined && (

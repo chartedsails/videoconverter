@@ -114,6 +114,11 @@
     "semi": false,
     "trailingComma": "es5"
   },
+  "jest": {
+    "moduleNameMapper": {
+      "^~(.*$)": "<rootDir>/src$1"
+    }
+  },
   "eslintConfig": {
     "extends": "react-app",
     "rules": {

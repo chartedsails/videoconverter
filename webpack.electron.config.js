@@ -5,6 +5,9 @@ const nodeExternals = require("webpack-node-externals")
 module.exports = {
   resolve: {
     extensions: [".tsx", ".ts", ".js"],
+    alias: {
+      "~": path.resolve(__dirname, "src/"),
+    },
   },
   devtool: "source-map",
   entry: {
