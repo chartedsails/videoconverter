@@ -1,7 +1,8 @@
 import { storiesOf } from "@storybook/react"
-import React, { useMemo } from "react"
+import React, { useMemo, useState } from "react"
 import { v4 } from "uuid"
 import thumbnail from "~/assets/mock-thumbnail.jpg"
+import { transcodingOptions } from "~/shared/TranscodingSetting"
 import { Video } from "~/shared/Video"
 import { AppContext, IAppContext } from "~/view/context/AppContext"
 import { useScreenStory } from "~/view/theme/useScreenStory"
@@ -84,14 +85,18 @@ const videos: Video[] = [
 stories.add("Bunch of different videos", () => {
   useScreenStory()
 
+  const [transcoding, updateTranscoding] = useState(transcodingOptions[0])
   const context = useMemo<IAppContext>(
     () => ({
       videos,
       outputFolder: "/Users/thomas/Desktop/ChartedSails Videos",
       // eslint-disable-next-line no-console
       addVideo: (f) => console.log(`add file: `, f),
+      onOpenSelectFolderDialog: () => true,
+      onTranscodingChange: updateTranscoding,
+      selectedTranscoding: transcoding,
     }),
-    []
+    [transcoding]
   )
 
   return (

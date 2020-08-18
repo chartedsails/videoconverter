@@ -1,13 +1,14 @@
-import { makeStyles } from "@material-ui/core"
-import React, { useCallback } from "react"
+import { makeStyles, Paper } from "@material-ui/core"
 import clsx from "clsx"
-import { Header } from "../header/Header"
-import { Footer } from "../footer/Footer"
-import { VideosContainer } from "../videos/VideosContainer"
-import { useAppContext } from "~/view/context/AppContext"
+import React, { useCallback } from "react"
 import { useDropzone } from "react-dropzone"
+import { useAppContext } from "~/view/context/AppContext"
+import { Footer } from "../footer/Footer"
+import { Header } from "../header/Header"
+import { Settings } from "../header/Settings"
+import { VideosContainer } from "../videos/VideosContainer"
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
     height: "100vh",
@@ -16,7 +17,11 @@ const useStyles = makeStyles(() => ({
     flexWrap: "nowrap",
   },
   header: {
+    padding: theme.spacing(2),
     flexShrink: 0,
+  },
+  titleBlock: {
+    marginBottom: theme.spacing(2),
   },
   main: {
     flexGrow: 1,
@@ -46,11 +51,16 @@ export const MainPanel = ({ className }: IProps) => {
   )
   const { getRootProps, getInputProps } = useDropzone({
     onDrop: handleDrop,
+    noClick: true,
+    noKeyboard: true,
   })
   return (
     <div className={clsx(classes.root, className)} {...getRootProps()}>
       <input {...getInputProps()} />
-      <Header className={classes.header} />
+      <Paper className={classes.header} square>
+        <Header className={classes.titleBlock} />
+        <Settings />
+      </Paper>
       <VideosContainer className={classes.main} />
       <Footer className={classes.footer} />
     </div>
