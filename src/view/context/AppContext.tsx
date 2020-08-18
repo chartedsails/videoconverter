@@ -8,6 +8,7 @@ import { Video } from "~/shared/Video"
 export interface IAppContext {
   videos: Video[]
   addVideo: (filepath: string) => void
+  queueVideo: (video: Video) => void
 
   outputFolder: string
   onOpenSelectFolderDialog: () => void
@@ -19,6 +20,7 @@ export interface IAppContext {
 const noAppContext: IAppContext = {
   videos: [],
   addVideo: () => true,
+  queueVideo: () => true,
 
   outputFolder: "My Videos/ChartedSails",
   onOpenSelectFolderDialog: () => true,

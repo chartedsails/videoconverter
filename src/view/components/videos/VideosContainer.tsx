@@ -20,13 +20,13 @@ interface IProps {
 
 export const VideosContainer = ({ className }: IProps) => {
   const classes = useStyles()
-  const { videos } = useAppContext()
+  const { videos, queueVideo } = useAppContext()
 
   return (
     <div className={clsx(classes.root, className)}>
       <div className={classes.scrollArea}>
         {videos.map((v, i) => (
-          <VideoPanel video={v} key={i} />
+          <VideoPanel video={v} key={i} onConvertClick={() => queueVideo(v)} />
         ))}
       </div>
     </div>

@@ -21,6 +21,9 @@ export const IPCContextProvider: FC = ({ children }) => {
   const handleTranscodingChange = useCallback((t: TranscodingSetting) => {
     ipcBridge.selectTranscoding(t)
   }, [])
+  const handleQueueVideo = useCallback((v: Video) => {
+    ipcBridge.queueVideo(v)
+  }, [])
 
   const [videos, updateVideos] = useState<Video[]>([])
   const [selectedTranscoding, updateSelectedTranscoding] = useState(
@@ -33,6 +36,7 @@ export const IPCContextProvider: FC = ({ children }) => {
       outputFolder,
       videos,
       addVideo: handleAddVideo,
+      queueVideo: handleQueueVideo,
       onOpenSelectFolderDialog: handleSelectOutputFolder,
       onTranscodingChange: handleTranscodingChange,
       selectedTranscoding: selectedTranscoding,
@@ -42,6 +46,7 @@ export const IPCContextProvider: FC = ({ children }) => {
       outputFolder,
       videos,
       handleAddVideo,
+      handleQueueVideo,
       handleSelectOutputFolder,
       handleTranscodingChange,
       selectedTranscoding,
@@ -72,6 +77,7 @@ export const IPCContextProvider: FC = ({ children }) => {
     ipcBridge.setVideoUpdatedListener(handleVideoUpdate)
     ipcBridge.setSettingsChangeListener(handleSettingsChange)
     ipcBridge.getSettings()
+    ipcBridge.refreshAllVideos()
   }, [handleSettingsChange, handleVideoUpdate])
   return <AppContext.Provider value={context}>{children}</AppContext.Provider>
 }

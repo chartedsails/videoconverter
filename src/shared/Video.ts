@@ -7,7 +7,9 @@ interface VideoProps extends BasicVideoProps {
   size: number
   duration: number
   goproTelemetry: boolean
-  resolution: string
+  width: number
+  height: number
+  framerate: number
   thumbnailData?: string
   needConversion: boolean
 }
@@ -27,9 +29,16 @@ interface ReadyVideo extends VideoProps {
   status: "ready"
 }
 
-interface ConvertingVideo extends VideoProps {
+export interface QueuedVideo extends VideoProps {
+  status: "queued"
+  convertedPath: string
+}
+
+export interface ConvertingVideo extends VideoProps {
   status: "converting"
   progress: number
+  remainingTime?: number
+  convertedPath: string
 }
 
 interface ConvertedVideo extends VideoProps {
@@ -42,14 +51,16 @@ interface NotReadyVideo extends VideoProps {
   error: string
 }
 
-interface ConversionErrorVideo extends VideoProps {
+export interface ConversionErrorVideo extends VideoProps {
   status: "conversion-error"
   error: string
+  convertedPath: string
 }
 
 export type Video =
   | AddingVideo
   | ReadyVideo
+  | QueuedVideo
   | ConvertingVideo
   | ConvertedVideo
   | NotReadyVideo

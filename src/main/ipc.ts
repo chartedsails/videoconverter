@@ -7,7 +7,8 @@ import {
   transcodingOptions,
   TranscodingSetting,
 } from "~/shared/TranscodingSetting"
-import { Video } from "~/shared/Video"
+import { QueuedVideo, Video } from "~/shared/Video"
+import { convertVideo } from "./video-processing/convert-video"
 import { extractBase64Thumbnail } from "./video-processing/extract-thumbnail"
 import { getVideoInfo } from "./video-processing/video-info"
 
@@ -47,6 +48,24 @@ export class AppIPC {
       }
     })
 
+    ipcMain.on("queue-video", async (event, video: Video) => {
+      logger.debug(`QueueVideo: ${video.filepath}`)
+
+      const index = this.videos.findIndex((v) => v.id === video.id)
+      const v = this.videos[index]
+      if (index !== -1 && v.status === "ready") {
+        this.videos[index] = {
+          ...v,
+          status: "queued",
+          convertedPath: this.videoDestinationPath(video),
+        }
+        this.refreshVideo(this.videos[index])
+      } else {
+        logger.warn(`queue-video called for non-existent video`, video)
+      }
+      this.processNextInQueue()
+    })
+
     ipcMain.on("select-output-folder", async () => {
       const mainWindow = BrowserWindow.getAllWindows()[0]
       const result = await dialog.showOpenDialog(mainWindow, {
@@ -60,6 +79,7 @@ export class AppIPC {
         this.savePreferences()
 
         this.videos = this.videos.map((v) => this.updateVideoReadiness(v))
+        this.videos.forEach((v) => this.refreshVideo(v))
       }
     })
 
@@ -71,6 +91,10 @@ export class AppIPC {
 
     ipcMain.on("get-settings", () => {
       this.refreshSettings()
+    })
+
+    ipcMain.on("refresh-all-videos", () => {
+      this.videos.forEach((v) => this.refreshVideo(v))
     })
   }
 
@@ -89,11 +113,59 @@ export class AppIPC {
     }
   }
 
-  private updateVideoReadiness(video: Video) {
-    const destinationPath = path.join(
-      this.outputFolder,
-      path.basename(video.filepath)
+  private async processNextInQueue() {
+    const processingVideos = this.videos.filter(
+      (v) => v.status === "converting"
     )
+    if (processingVideos.length > 0) {
+      logger.debug(
+        `processNextInQueue: processing already in progress - bailing out.`
+      )
+      return
+    }
+
+    const queuedVideos = this.videos.filter((v) => v.status === "queued")
+    if (queuedVideos.length === 0) {
+      logger.debug(`processNextInQueue: queue empty.`)
+      return
+    }
+
+    const video = queuedVideos[0] as QueuedVideo
+    logger.info(`processNextInQueue: process ${video.filepath}`)
+    const updateVideo = (v: Video) => {
+      const index = this.videos.findIndex((v) => v.id === video.id)
+      this.videos[index] = v
+      this.refreshVideo(v)
+    }
+
+    updateVideo({ ...video, status: "converting", progress: 0 })
+
+    try {
+      await convertVideo(
+        video.filepath,
+        video.convertedPath,
+        this.transcodeSetting,
+        (progress, remainingTime) => {
+          updateVideo({
+            ...video,
+            status: "converting",
+            progress,
+            remainingTime,
+          })
+        }
+      )
+      const convertedSize = fs.statSync(video.convertedPath).size
+      updateVideo({ ...video, status: "converted", convertedSize })
+    } catch (e) {
+      updateVideo({ ...video, status: "conversion-error", error: e.message })
+    }
+
+    // Process Next video (if it exists)
+    this.processNextInQueue()
+  }
+
+  private updateVideoReadiness(video: Video) {
+    const destinationPath = this.videoDestinationPath(video)
     if (video.status === "ready" || video.status === "not-ready") {
       if (fs.existsSync(destinationPath)) {
         video = {
@@ -106,6 +178,12 @@ export class AppIPC {
       }
     }
     return video
+  }
+
+  private videoDestinationPath(video: Video) {
+    const filename =
+      path.basename(video.filepath, path.extname(video.filepath)) + ".mov"
+    return path.join(this.outputFolder, filename)
   }
 
   private preferencesPath() {
@@ -127,6 +205,9 @@ export class AppIPC {
     }
     if (!this.outputFolder || !fs.existsSync(this.outputFolder)) {
       this.outputFolder = path.join(app.getPath("videos"), "ChartedSails")
+      if (!fs.existsSync(this.outputFolder)) {
+        fs.mkdirSync(this.outputFolder, { recursive: true })
+      }
     }
   }
 

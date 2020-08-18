@@ -6,6 +6,8 @@ export interface VideoConverterIPC {
   selectOutputFolder: () => void
   selectTranscoding: (t: TranscodingSetting) => void
   getSettings: () => void
+  queueVideo: (v: Video) => void
+  refreshAllVideos: () => void
 
   setVideoUpdatedListener: (listener: (video: Video) => void) => void
   setSettingsChangeListener: (

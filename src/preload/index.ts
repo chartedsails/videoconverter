@@ -19,13 +19,21 @@ const ipcBridge: VideoConverterIPC = {
     ipcRenderer.send("select-output-folder")
   },
   selectTranscoding: (t: TranscodingSetting) => {
-    logger.debug(`IPC => select-transcodign`)
+    logger.debug(`IPC => select-transcoding`)
     ipcRenderer.send("select-transcoding", t)
+  },
+  queueVideo: (v: Video) => {
+    logger.debug(`IPC => queue-video`)
+    ipcRenderer.send("queue-video", v)
+  },
+  refreshAllVideos: () => {
+    logger.debug(`IPC => refresh-all-videos`)
+    ipcRenderer.send("refresh-all-videos")
   },
   setVideoUpdatedListener: (listener) => {
     ipcRenderer.removeAllListeners("update-video")
     ipcRenderer.on("update-video", (event, video: Video) => {
-      const loggedVideo: Video = {
+      const loggedVideo: any = {
         ...video,
         thumbnailData: video.thumbnailData?.slice(0, 42) + "...",
       }

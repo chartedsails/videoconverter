@@ -60,6 +60,7 @@ const useStyles = makeStyles((theme) => ({
 interface IProps {
   className?: string
   video: Video
+  onConvertClick?: () => void
 }
 
 const TelemetryChip = ({ value }: { value: boolean }) => (
@@ -69,8 +70,20 @@ const TelemetryChip = ({ value }: { value: boolean }) => (
     icon={<GPSIcon />}
   />
 )
-const ResolutionChip = ({ value }: { value: string }) => (
-  <Chip color="primary" label={value} icon={<ResolutionIcon />} />
+const ResolutionChip = ({
+  width,
+  height,
+  framerate,
+}: {
+  width: number
+  height: number
+  framerate: number
+}) => (
+  <Chip
+    color="primary"
+    label={`${width}x${height}@${framerate}`}
+    icon={<ResolutionIcon />}
+  />
 )
 const ConversionChip = ({ value }: { value: boolean }) => (
   <Chip
@@ -80,7 +93,7 @@ const ConversionChip = ({ value }: { value: boolean }) => (
   />
 )
 
-export const VideoPanel = ({ className, video }: IProps) => {
+export const VideoPanel = ({ className, video, onConvertClick }: IProps) => {
   const classes = useStyles()
 
   const basename = video.filepath.split("/").pop()
@@ -108,9 +121,7 @@ export const VideoPanel = ({ className, video }: IProps) => {
           {video.goproTelemetry !== undefined && (
             <TelemetryChip value={video.goproTelemetry} />
           )}
-          {video.resolution !== undefined && (
-            <ResolutionChip value={video.resolution} />
-          )}
+          {video.status !== "adding" && <ResolutionChip {...video} />}
           {video.needConversion !== undefined && (
             <ConversionChip value={video.needConversion} />
           )}
@@ -118,7 +129,7 @@ export const VideoPanel = ({ className, video }: IProps) => {
       </div>
       <div className={classes.result}>
         {video.status === "ready" && (
-          <Fab variant="extended" color="primary">
+          <Fab variant="extended" color="primary" onClick={onConvertClick}>
             <SlowMotionVideoIcon />
             Convert Video
           </Fab>
@@ -133,19 +144,22 @@ export const VideoPanel = ({ className, video }: IProps) => {
             </span>
           </Tooltip>
         )}
-        {video.status === "converting" && video.progress === 0 && (
+        {video.status === "queued" && (
           <>
-            <CircularProgress value={video.progress} />
+            <CircularProgress />
           </>
         )}
-        {video.status === "converting" && video.progress > 0 && (
+        {video.status === "converting" && (
           <>
             <LinearProgress
-              value={video.progress}
+              value={video.progress * 100}
               variant="determinate"
               color="primary"
               style={{ width: 64 }}
             />
+            {video.remainingTime !== undefined && (
+              <Typography>{formatChrono(video.remainingTime)}</Typography>
+            )}
           </>
         )}
         {video.status === "conversion-error" && (
