@@ -1,9 +1,21 @@
-import { Chip, makeStyles, Paper, Typography } from "@material-ui/core"
+import {
+  Chip,
+  CircularProgress,
+  Fab,
+  LinearProgress,
+  makeStyles,
+  Paper,
+  Tooltip,
+  Typography,
+} from "@material-ui/core"
 import ResolutionIcon from "@material-ui/icons/AspectRatio"
 import ConversionNotNeededIcon from "@material-ui/icons/BeenhereTwoTone"
+import CheckCircleOutlineIcon from "@material-ui/icons/CheckCircleOutline"
+import ErrorOutlineIcon from "@material-ui/icons/ErrorOutline"
 import ConversionNeededIcon from "@material-ui/icons/FitnessCenterTwoTone"
 import ImageMissing from "@material-ui/icons/ImageTwoTone"
 import GPSIcon from "@material-ui/icons/SatelliteTwoTone"
+import SlowMotionVideoIcon from "@material-ui/icons/SlowMotionVideo"
 import clsx from "clsx"
 import React from "react"
 import { Video } from "~/shared/Video"
@@ -34,6 +46,14 @@ const useStyles = makeStyles((theme) => ({
     "& .MuiChip-root": {
       marginRight: theme.spacing(1),
     },
+  },
+  result: {
+    marginLeft: "auto",
+    width: 200,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
   },
 }))
 
@@ -76,9 +96,13 @@ export const VideoPanel = ({ className, video }: IProps) => {
       </div>
       <div className={classes.details}>
         <Typography>
-          {basename} -{" "}
-          {video.duration !== undefined && `${formatChrono(video.duration)} - `}
-          {formatBytes(video.size)}
+          {basename}
+          {video.status !== "adding" && (
+            <>
+              {" "}
+              - {formatChrono(video.duration)} - {formatBytes(video.size)}
+            </>
+          )}
         </Typography>
         <div className={classes.badges}>
           {video.goproTelemetry !== undefined && (
@@ -91,6 +115,51 @@ export const VideoPanel = ({ className, video }: IProps) => {
             <ConversionChip value={video.needConversion} />
           )}
         </div>
+      </div>
+      <div className={classes.result}>
+        {video.status === "ready" && (
+          <Fab variant="extended" color="primary">
+            <SlowMotionVideoIcon />
+            Convert Video
+          </Fab>
+        )}
+        {video.status === "not-ready" && (
+          <Tooltip title={video.error}>
+            <span>
+              <Fab variant="extended" disabled>
+                <SlowMotionVideoIcon />
+                Convert Video
+              </Fab>
+            </span>
+          </Tooltip>
+        )}
+        {video.status === "converting" && video.progress === 0 && (
+          <>
+            <CircularProgress value={video.progress} />
+          </>
+        )}
+        {video.status === "converting" && video.progress > 0 && (
+          <>
+            <LinearProgress
+              value={video.progress}
+              variant="determinate"
+              color="primary"
+              style={{ width: 64 }}
+            />
+          </>
+        )}
+        {video.status === "conversion-error" && (
+          <>
+            <ErrorOutlineIcon color="error" />
+            <Typography color="error">{video.error}</Typography>
+          </>
+        )}
+        {video.status === "converted" && (
+          <>
+            <CheckCircleOutlineIcon color="primary" />
+            <Typography>{formatBytes(video.convertedSize)}</Typography>
+          </>
+        )}
       </div>
     </Paper>
   )

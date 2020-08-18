@@ -2,29 +2,46 @@ import { app, BrowserWindow, dialog, ipcMain } from "electron"
 import logger from "electron-log"
 import fs from "fs"
 import path from "path"
+import { v4 } from "uuid"
 import {
   transcodingOptions,
   TranscodingSetting,
 } from "~/shared/TranscodingSetting"
 import { Video } from "~/shared/Video"
 import { extractBase64Thumbnail } from "./video-processing/extract-thumbnail"
-import { createVideoInfo } from "./video-processing/video-info"
+import { getVideoInfo } from "./video-processing/video-info"
 
 export class AppIPC {
   private transcodeSetting: TranscodingSetting
   private outputFolder: string
+  private videos: Video[]
 
   constructor() {
     this.loadPreferences()
+    this.videos = []
 
     ipcMain.on("add-video", async (event, filepath: string) => {
       logger.debug(`AddVideo: ${filepath}`)
 
+      // Skip if we already have this video
+      if (this.videos.find((v) => v.filepath === filepath)) {
+        return
+      }
+
       try {
-        const video = await createVideoInfo(filepath)
+        let video: Video = { id: v4(), status: "adding", filepath }
         this.refreshVideo(video)
-        video.thumbnailData = await extractBase64Thumbnail(filepath)
+
+        video = await getVideoInfo(video)
         this.refreshVideo(video)
+
+        if (video.status === "ready") {
+          video.thumbnailData = await extractBase64Thumbnail(filepath)
+          video = this.updateVideoReadiness(video)
+          this.refreshVideo(video)
+
+          this.videos.push(video)
+        }
       } catch (e) {
         logger.error(e)
       }
@@ -41,6 +58,8 @@ export class AppIPC {
         this.outputFolder = result.filePaths[0]
         this.refreshSettings()
         this.savePreferences()
+
+        this.videos = this.videos.map((v) => this.updateVideoReadiness(v))
       }
     })
 
@@ -68,6 +87,25 @@ export class AppIPC {
         this.outputFolder
       )
     }
+  }
+
+  private updateVideoReadiness(video: Video) {
+    const destinationPath = path.join(
+      this.outputFolder,
+      path.basename(video.filepath)
+    )
+    if (video.status === "ready" || video.status === "not-ready") {
+      if (fs.existsSync(destinationPath)) {
+        video = {
+          ...video,
+          status: "not-ready",
+          error: "Destination file already exists.",
+        }
+      } else {
+        video = { ...video, status: "ready" }
+      }
+    }
+    return video
   }
 
   private preferencesPath() {

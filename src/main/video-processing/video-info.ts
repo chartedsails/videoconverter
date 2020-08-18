@@ -1,20 +1,11 @@
 import Ffmpeg from "fluent-ffmpeg"
 import fs from "fs"
-import { v4 } from "uuid"
 import { Video } from "~/shared/Video"
 import { ffprobeInfo, gpmdTrackIndex } from "./ffprobe"
 
-export const createVideoInfo = async (filepath: string): Promise<Video> => {
-  // First check that the file exists
-  if (!fs.existsSync(filepath)) {
-    throw new Error("File does not exist.")
-  }
-
-  const stats = fs.statSync(filepath)
-  const ffinfo = await ffprobeInfo(filepath)
-
-  // eslint-disable-next-line no-console
-  // console.log(`ffprobeInfo: ${JSON.stringify(ffinfo, undefined, 2)}`)
+export const getVideoInfo = async (v: Video): Promise<Video> => {
+  const stats = fs.statSync(v.filepath)
+  const ffinfo = await ffprobeInfo(v.filepath)
 
   const videoTrack = ffinfo.streams.find((s) => s.codec_type === "video")
   if (videoTrack === undefined) {
@@ -22,9 +13,10 @@ export const createVideoInfo = async (filepath: string): Promise<Video> => {
   }
 
   const video: Video = {
-    id: v4(),
-    filepath,
+    ...v,
+    status: "ready",
     size: stats.size,
+    resolution: `${videoTrack.coded_width}x${videoTrack.coded_height}`,
     duration: Number.parseFloat(videoTrack.duration) * 1000,
     needConversion: needsConversion(videoTrack),
     goproTelemetry: gpmdTrackIndex(ffinfo) !== -1,
