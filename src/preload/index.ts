@@ -30,6 +30,10 @@ const ipcBridge: VideoConverterIPC = {
     logger.debug(`IPC => refresh-all-videos`)
     ipcRenderer.send("refresh-all-videos")
   },
+  openPath: (path) => {
+    logger.debug(`IPC => refresh-all-videos`)
+    ipcRenderer.send("open-path", path)
+  },
   setVideoUpdatedListener: (listener) => {
     ipcRenderer.removeAllListeners("update-video")
     ipcRenderer.on("update-video", (event, video: Video) => {

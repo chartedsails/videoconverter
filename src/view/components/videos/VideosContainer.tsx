@@ -20,13 +20,23 @@ interface IProps {
 
 export const VideosContainer = ({ className }: IProps) => {
   const classes = useStyles()
-  const { videos, queueVideo } = useAppContext()
+  const { videos, queueVideo, openPath } = useAppContext()
 
   return (
     <div className={clsx(classes.root, className)}>
       <div className={classes.scrollArea}>
         {videos.map((v, i) => (
-          <VideoPanel video={v} key={i} onConvertClick={() => queueVideo(v)} />
+          <VideoPanel
+            video={v}
+            key={i}
+            onConvertClick={() => queueVideo(v)}
+            onOpenOriginalVideo={() => {
+              openPath(v.filepath)
+            }}
+            onOpenConvertedVideo={() =>
+              v.status === "converted" && openPath(v.convertedPath)
+            }
+          />
         ))}
       </div>
     </div>

@@ -24,6 +24,9 @@ export const IPCContextProvider: FC = ({ children }) => {
   const handleQueueVideo = useCallback((v: Video) => {
     ipcBridge.queueVideo(v)
   }, [])
+  const handleOpenPath = useCallback((path: string) => {
+    ipcBridge.openPath(path)
+  }, [])
 
   const [videos, updateVideos] = useState<Video[]>([])
   const [selectedTranscoding, updateSelectedTranscoding] = useState(
@@ -40,6 +43,7 @@ export const IPCContextProvider: FC = ({ children }) => {
       onOpenSelectFolderDialog: handleSelectOutputFolder,
       onTranscodingChange: handleTranscodingChange,
       selectedTranscoding: selectedTranscoding,
+      openPath: handleOpenPath,
     }),
 
     [
@@ -50,6 +54,7 @@ export const IPCContextProvider: FC = ({ children }) => {
       handleSelectOutputFolder,
       handleTranscodingChange,
       selectedTranscoding,
+      handleOpenPath,
     ]
   )
   const handleVideoUpdate = useCallback((video: Video) => {

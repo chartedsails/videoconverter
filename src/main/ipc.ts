@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain } from "electron"
+import { app, BrowserWindow, dialog, ipcMain, shell } from "electron"
 import logger from "electron-log"
 import fs from "fs"
 import path from "path"
@@ -95,6 +95,9 @@ export class AppIPC {
 
     ipcMain.on("refresh-all-videos", () => {
       this.videos.forEach((v) => this.refreshVideo(v))
+    })
+    ipcMain.on("open-path", (e, path: string) => {
+      shell.openPath(path)
     })
   }
 

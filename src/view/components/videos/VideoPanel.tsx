@@ -61,6 +61,8 @@ interface IProps {
   className?: string
   video: Video
   onConvertClick?: () => void
+  onOpenConvertedVideo?: () => void
+  onOpenOriginalVideo?: () => void
 }
 
 const TelemetryChip = ({ value }: { value: boolean }) => (
@@ -93,7 +95,13 @@ const ConversionChip = ({ value }: { value: boolean }) => (
   />
 )
 
-export const VideoPanel = ({ className, video, onConvertClick }: IProps) => {
+export const VideoPanel = ({
+  className,
+  video,
+  onConvertClick,
+  onOpenConvertedVideo,
+  onOpenOriginalVideo,
+}: IProps) => {
   const classes = useStyles()
 
   const basename = video.filepath.split("/").pop()
@@ -102,7 +110,11 @@ export const VideoPanel = ({ className, video, onConvertClick }: IProps) => {
     <Paper elevation={2} className={clsx(classes.root, className)}>
       <div className={classes.thumbnail}>
         {video.thumbnailData ? (
-          <img src={video.thumbnailData} alt={basename} />
+          <img
+            src={video.thumbnailData}
+            alt={basename}
+            onDoubleClick={onOpenOriginalVideo}
+          />
         ) : (
           <ImageMissing />
         )}
@@ -127,7 +139,7 @@ export const VideoPanel = ({ className, video, onConvertClick }: IProps) => {
           )}
         </div>
       </div>
-      <div className={classes.result}>
+      <div className={classes.result} onDoubleClick={onOpenConvertedVideo}>
         {video.status === "ready" && (
           <Fab variant="extended" color="primary" onClick={onConvertClick}>
             <SlowMotionVideoIcon />
