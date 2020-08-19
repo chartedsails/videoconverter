@@ -36,9 +36,7 @@
     },
     "afterSign": "electron-builder-notarize",
     "publish": {
-      "provider": "github",
-      "repo": "videoconverter-releases",
-      "owner": "chartedsails"
+      "provider": "github"
     }
   },
   "scripts": {
