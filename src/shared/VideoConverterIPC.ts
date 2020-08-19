@@ -9,6 +9,7 @@ export interface VideoConverterIPC {
   queueVideo: (v: Video) => void
   refreshAllVideos: () => void
   openPath: (path: string) => void
+  openAbout: () => void
 
   setVideoUpdatedListener: (listener: (video: Video) => void) => void
   setSettingsChangeListener: (

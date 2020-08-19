@@ -17,6 +17,7 @@ export interface IAppContext {
   onTranscodingChange: (t: TranscodingSetting) => void
 
   openPath: (path: string) => void
+  openAbout: () => void
 }
 
 const noAppContext: IAppContext = {
@@ -31,6 +32,7 @@ const noAppContext: IAppContext = {
   onTranscodingChange: () => true,
 
   openPath: () => true,
+  openAbout: () => true,
 }
 
 export const AppContext = createContext<IAppContext>(noAppContext)

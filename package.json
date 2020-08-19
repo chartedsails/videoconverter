@@ -101,6 +101,7 @@
     "@ffprobe-installer/ffprobe": "^1.0.12",
     "@material-ui/core": "^4.11.0",
     "@material-ui/icons": "^4.9.1",
+    "about-window": "^1.13.4",
     "electron-log": "^4.2.2",
     "electron-updater": "^4.3.4",
     "express": "^4.17.1",

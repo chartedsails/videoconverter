@@ -1,7 +1,8 @@
-import { makeStyles, Typography } from "@material-ui/core"
-import React from "react"
+import { Button, makeStyles, Typography } from "@material-ui/core"
 import clsx from "clsx"
+import React from "react"
 import chartedSailsLogo from "~/assets/chartedsails-logo.svg"
+import { useAppContext } from "~/view/context/AppContext"
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -9,6 +10,9 @@ const useStyles = makeStyles((theme) => ({
     "& img": {
       marginRight: theme.spacing(4),
     },
+  },
+  aboutButton: {
+    marginLeft: "auto",
   },
 }))
 
@@ -18,6 +22,8 @@ interface IProps {
 
 export const Header = ({ className }: IProps) => {
   const classes = useStyles()
+  const { openAbout } = useAppContext()
+
   return (
     <div className={clsx(classes.root, className)}>
       <img src={chartedSailsLogo} alt="ChartedSails logo" />
@@ -28,6 +34,13 @@ export const Header = ({ className }: IProps) => {
           disk space!
         </Typography>
       </div>
+      <Button
+        className={classes.aboutButton}
+        variant="text"
+        onClick={openAbout}
+      >
+        About this app
+      </Button>
     </div>
   )
 }

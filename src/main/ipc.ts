@@ -3,6 +3,7 @@ import logger from "electron-log"
 import fs from "fs"
 import path from "path"
 import { v4 } from "uuid"
+import { openVideoConverterAboutWindow } from "~/shared/about-window"
 import {
   transcodingOptions,
   TranscodingSetting,
@@ -98,6 +99,9 @@ export class AppIPC {
     })
     ipcMain.on("open-path", (e, path: string) => {
       shell.openPath(path)
+    })
+    ipcMain.on("open-about", (e) => {
+      openVideoConverterAboutWindow()
     })
   }
 

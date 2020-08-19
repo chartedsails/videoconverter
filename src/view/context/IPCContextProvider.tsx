@@ -27,6 +27,7 @@ export const IPCContextProvider: FC = ({ children }) => {
   const handleOpenPath = useCallback((path: string) => {
     ipcBridge.openPath(path)
   }, [])
+  const handleOpenAbout = useCallback(() => ipcBridge.openAbout(), [])
 
   const [videos, updateVideos] = useState<Video[]>([])
   const [selectedTranscoding, updateSelectedTranscoding] = useState(
@@ -44,6 +45,7 @@ export const IPCContextProvider: FC = ({ children }) => {
       onTranscodingChange: handleTranscodingChange,
       selectedTranscoding: selectedTranscoding,
       openPath: handleOpenPath,
+      openAbout: handleOpenAbout,
     }),
 
     [
@@ -55,6 +57,7 @@ export const IPCContextProvider: FC = ({ children }) => {
       handleTranscodingChange,
       selectedTranscoding,
       handleOpenPath,
+      handleOpenAbout,
     ]
   )
   const handleVideoUpdate = useCallback((video: Video) => {
