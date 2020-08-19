@@ -186,8 +186,10 @@ export const VideoPanel = ({
               color="primary"
               style={{ width: 64 }}
             />
-            {video.remainingTime !== undefined && (
+            {video.remainingTime !== undefined ? (
               <Typography>{formatChrono(video.remainingTime)}</Typography>
+            ) : (
+              <Typography>Estimating...</Typography>
             )}
           </>
         )}

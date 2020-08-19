@@ -61,7 +61,7 @@ export const convertVideo = async (
       const elapsed = Date.now() - startTime
       const remainingTime = elapsed * (1 / p - 1)
       // Time estimate is very unreliable in the beginning...
-      if (p > 0.05 && elapsed > 10000) {
+      if (p > 0.05 || elapsed > 10000) {
         onProgress?.(p, remainingTime)
       } else {
         onProgress?.(p)
