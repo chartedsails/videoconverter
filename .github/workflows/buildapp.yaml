@@ -61,5 +61,3 @@ jobs:
 
           mac_certs: ${{ secrets.mac_certs }}
           mac_certs_password: ${{ secrets.mac_certs_password }}
-
-          package_root: app
