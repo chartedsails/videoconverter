@@ -2,6 +2,8 @@ import {
   Chip,
   CircularProgress,
   Fab,
+  Fade,
+  IconButton,
   LinearProgress,
   makeStyles,
   Paper,
@@ -13,20 +15,21 @@ import ConversionNotNeededIcon from "@material-ui/icons/BeenhereTwoTone"
 import CheckCircleOutlineIcon from "@material-ui/icons/CheckCircleOutline"
 import ErrorOutlineIcon from "@material-ui/icons/ErrorOutline"
 import ConversionNeededIcon from "@material-ui/icons/FitnessCenterTwoTone"
+import HighlightOffIcon from "@material-ui/icons/HighlightOff"
 import ImageMissing from "@material-ui/icons/ImageTwoTone"
 import GPSIcon from "@material-ui/icons/SatelliteTwoTone"
 import SlowMotionVideoIcon from "@material-ui/icons/SlowMotionVideo"
 import clsx from "clsx"
-import React from "react"
+import React, { useState } from "react"
 import { Video } from "~/shared/Video"
 import { formatChrono } from "~/util/format-duration"
 import { formatBytes } from "~/util/format-size"
-
 const useStyles = makeStyles((theme) => ({
   root: {
     margin: theme.spacing(2),
     display: "flex",
     padding: theme.spacing(2),
+    position: "relative",
   },
   thumbnail: {
     width: 100,
@@ -55,6 +58,11 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     justifyContent: "center",
   },
+  remove: {
+    flexShrink: 0,
+    marginTop: "auto",
+    marginBottom: "auto",
+  },
 }))
 
 interface IProps {
@@ -63,6 +71,7 @@ interface IProps {
   onConvertClick?: () => void
   onOpenConvertedVideo?: () => void
   onOpenOriginalVideo?: () => void
+  onRemove?: () => void
 }
 
 const TelemetryChip = ({ value }: { value: boolean }) => (
@@ -101,13 +110,21 @@ export const VideoPanel = ({
   onConvertClick,
   onOpenConvertedVideo,
   onOpenOriginalVideo,
+  onRemove,
 }: IProps) => {
   const classes = useStyles()
 
   const basename = video.filepath.split("/").pop()
 
+  const [isHovering, updateIsHovering] = useState(false)
+
   return (
-    <Paper elevation={2} className={clsx(classes.root, className)}>
+    <Paper
+      elevation={2}
+      className={clsx(classes.root, className)}
+      onMouseEnter={() => updateIsHovering(true)}
+      onMouseLeave={() => updateIsHovering(false)}
+    >
       <div className={classes.thumbnail}>
         {video.thumbnailData ? (
           <img
@@ -187,6 +204,11 @@ export const VideoPanel = ({
           </>
         )}
       </div>
+      <Fade in={isHovering}>
+        <IconButton onClick={onRemove} className={classes.remove}>
+          <HighlightOffIcon />
+        </IconButton>
+      </Fade>
     </Paper>
   )
 }

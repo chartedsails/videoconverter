@@ -1,5 +1,5 @@
 import logger from "electron-log"
-import Ffmpeg from "fluent-ffmpeg"
+import Ffmpeg, { FfmpegCommand } from "fluent-ffmpeg"
 import { TranscodingSetting } from "~/shared/TranscodingSetting"
 import { ffprobeInfo, gpmdTrackIndex } from "./ffprobe"
 
@@ -7,7 +7,13 @@ export const convertVideo = async (
   input: string,
   output: string,
   transcodeSetting: TranscodingSetting,
-  onProgress?: (p: number, remainingTime?: number) => void
+  {
+    onProgress,
+    onCmdStarted,
+  }: {
+    onProgress?: (p: number, remainingTime?: number) => void
+    onCmdStarted?: (cmd: FfmpegCommand) => void
+  } = {}
 ) => {
   return new Promise<Ffmpeg.FfprobeData>(async (resolve, reject) => {
     // First extract the video info
@@ -63,5 +69,6 @@ export const convertVideo = async (
     })
     logger.info(`Converting ${input} - ${cmd._getArguments().join(" ")}`)
     cmd.run()
+    onCmdStarted?.(cmd)
   })
 }

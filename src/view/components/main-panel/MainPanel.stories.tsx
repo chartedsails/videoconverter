@@ -1,3 +1,4 @@
+import { action } from "@storybook/addon-actions"
 import { storiesOf } from "@storybook/react"
 import React, { useMemo, useState } from "react"
 import { v4 } from "uuid"
@@ -162,13 +163,12 @@ stories.add("Bunch of different videos", () => {
       outputFolder: "/Users/thomas/Desktop/ChartedSails Videos",
       selectedTranscoding: transcoding,
       onTranscodingChange: updateTranscoding,
-      // eslint-disable-next-line no-console
-      addVideo: (f) => console.log(`add file: `, f),
-      // eslint-disable-next-line no-console
-      queueVideo: (v) => console.log(`queue video: `, v),
-      onOpenSelectFolderDialog: () => true,
-      openPath: () => true,
-      openAbout: () => true,
+      addVideo: action("add video"),
+      queueVideo: action("queue video"),
+      removeVideo: action("remove video"),
+      onOpenSelectFolderDialog: action("select folder"),
+      openPath: action("open path"),
+      openAbout: action("open about"),
       error: undefined,
       clearError: () => true,
     }),
@@ -198,13 +198,12 @@ stories.add("With error", () => {
       outputFolder: "/Users/thomas/Desktop/ChartedSails Videos",
       selectedTranscoding: transcoding,
       onTranscodingChange: updateTranscoding,
-      // eslint-disable-next-line no-console
-      addVideo: (f) => console.log(`add file: `, f),
-      // eslint-disable-next-line no-console
-      queueVideo: (v) => console.log(`queue video: `, v),
-      onOpenSelectFolderDialog: () => true,
-      openPath: () => true,
-      openAbout: () => true,
+      addVideo: action("add video"),
+      queueVideo: action("queue video"),
+      removeVideo: action("remove video"),
+      onOpenSelectFolderDialog: action("select folder"),
+      openPath: action("open path"),
+      openAbout: action("open about"),
       error,
       clearError: () => updateError(undefined),
     }),

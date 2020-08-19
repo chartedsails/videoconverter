@@ -17,6 +17,7 @@ export interface VideoConverterIPC {
   refreshAllVideos: () => void
   openPath: (path: string) => void
   openAbout: () => void
+  removeVideo: (video: Video) => void
 
   setVideosUpdatedListener: (listener: (videos: Video[]) => void) => void
   setSettingsChangeListener: (

@@ -9,6 +9,7 @@ import { AppError } from "~/shared/VideoConverterIPC"
 export interface IAppContext {
   videos: Video[]
   addVideo: (filepath: string) => void
+  removeVideo: (video: Video) => void
   queueVideo: (video: Video) => void
 
   outputFolder: string
@@ -27,6 +28,7 @@ export interface IAppContext {
 const noAppContext: IAppContext = {
   videos: [],
   addVideo: () => true,
+  removeVideo: () => true,
   queueVideo: () => true,
 
   outputFolder: "My Videos/ChartedSails",

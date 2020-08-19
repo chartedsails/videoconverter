@@ -11,6 +11,10 @@ const ipcBridge: VideoConverterIPC = {
     logger.debug(`IPC => add-video(${filepath})`)
     ipcRenderer.send("add-video", filepath)
   },
+  removeVideo: (video) => {
+    logger.debug(`IPC => remove-video(${video.id} ${video.filepath})`)
+    ipcRenderer.send("remove-video", video)
+  },
   getSettings: () => {
     ipcRenderer.send("get-settings")
   },

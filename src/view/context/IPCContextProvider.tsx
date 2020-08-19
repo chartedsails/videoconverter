@@ -15,6 +15,9 @@ export const IPCContextProvider: FC = ({ children }) => {
   const handleAddVideo = useCallback((filepath: string) => {
     ipcBridge.addVideo(filepath)
   }, [])
+  const handleRemoveVideo = useCallback((video: Video) => {
+    ipcBridge.removeVideo(video)
+  }, [])
   const handleSelectOutputFolder = useCallback(() => {
     ipcBridge.selectOutputFolder()
   }, [])
@@ -43,6 +46,7 @@ export const IPCContextProvider: FC = ({ children }) => {
       outputFolder,
       videos,
       addVideo: handleAddVideo,
+      removeVideo: handleRemoveVideo,
       queueVideo: handleQueueVideo,
       onOpenSelectFolderDialog: handleSelectOutputFolder,
       onTranscodingChange: handleTranscodingChange,

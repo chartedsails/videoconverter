@@ -2,8 +2,8 @@ import { app, BrowserWindow } from "electron"
 import * as logger from "electron-log"
 import * as path from "path"
 import { AppUpdater } from "./app-updater"
-import { prepareFfmpeg } from "./ffmpeg-init"
 import { createWindow } from "./create-window"
+import { prepareFfmpeg } from "./ffmpeg-init"
 import { AppIPC } from "./ipc"
 
 logger.transports.file.resolvePath = (variables) => {
@@ -18,7 +18,8 @@ logger.log(
 logger.info(`Logfile: `, logger.transports.file.getFile().path)
 
 prepareFfmpeg()
-new AppIPC()
+
+const appIPC = new AppIPC()
 
 // Start the app updater
 if (process.env.NODE_ENV !== "development") {
@@ -45,4 +46,8 @@ app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit()
   }
+})
+
+app.on("quit", () => {
+  appIPC.killRunningConversion()
 })

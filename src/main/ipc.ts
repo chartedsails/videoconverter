@@ -1,5 +1,6 @@
 import { app, BrowserWindow, dialog, ipcMain, shell } from "electron"
 import logger from "electron-log"
+import { FfmpegCommand } from "fluent-ffmpeg"
 import fs from "fs"
 import path from "path"
 import { v4 } from "uuid"
@@ -18,6 +19,7 @@ export class AppIPC {
   private transcodeSetting: TranscodingSetting
   private outputFolder: string
   private videos: Video[]
+  private runningCommand?: FfmpegCommand
 
   constructor() {
     this.loadPreferences()
@@ -71,6 +73,22 @@ export class AppIPC {
         logger.warn(`queue-video called for non-existent video`, video)
       }
       this.processNextInQueue()
+    })
+
+    ipcMain.on("remove-video", async (event, video: Video) => {
+      logger.debug(`RemoveVideo: ${video}`)
+      const index = this.videos.findIndex((v) => v.id === video.id)
+      if (index !== -1) {
+        const v = this.videos[index]
+        if (v.status === "converting" && this.runningCommand) {
+          this.runningCommand.kill("SIGKILL")
+          try {
+            fs.unlinkSync(v.convertedPath)
+          } catch {}
+        }
+        this.videos.splice(index, 1)
+      }
+      this.refreshAllVideos()
     })
 
     ipcMain.on("select-output-folder", async () => {
@@ -143,6 +161,17 @@ export class AppIPC {
     }
   }
 
+  public killRunningConversion() {
+    if (this.runningCommand) {
+      this.runningCommand.kill("SIGKILL")
+
+      const v = this.videos.find((v) => v.status === "converting")
+      if (v && v.status === "converting") {
+        fs.unlinkSync(v.convertedPath)
+      }
+    }
+  }
+
   private async processNextInQueue() {
     const processingVideos = this.videos.filter(
       (v) => v.status === "converting"
@@ -175,19 +204,26 @@ export class AppIPC {
         video.filepath,
         video.convertedPath,
         this.transcodeSetting,
-        (progress, remainingTime) => {
-          updateVideo({
-            ...video,
-            status: "converting",
-            progress,
-            remainingTime,
-          })
+        {
+          onProgress: (progress, remainingTime) => {
+            updateVideo({
+              ...video,
+              status: "converting",
+              progress,
+              remainingTime,
+            })
+          },
+          onCmdStarted: (cmd) => (this.runningCommand = cmd),
         }
       )
+      this.runningCommand = undefined
       const convertedSize = fs.statSync(video.convertedPath).size
       updateVideo({ ...video, status: "converted", convertedSize })
     } catch (e) {
-      updateVideo({ ...video, status: "conversion-error", error: e.message })
+      if (this.videos.find((v) => v.id === video.id)) {
+        updateVideo({ ...video, status: "conversion-error", error: e.message })
+      }
+      // if the video is not in the list, the user probably interrupted it.
     }
 
     // Process Next video (if it exists)
