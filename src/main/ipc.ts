@@ -212,6 +212,9 @@ export class AppIPC {
               progress,
               remainingTime,
             })
+            BrowserWindow.getAllWindows().forEach((bw) =>
+              bw.setProgressBar(progress)
+            )
           },
           onCmdStarted: (cmd) => (this.runningCommand = cmd),
         }
@@ -225,6 +228,7 @@ export class AppIPC {
       }
       // if the video is not in the list, the user probably interrupted it.
     }
+    BrowserWindow.getAllWindows().forEach((bw) => bw.setProgressBar(-1))
 
     // Process Next video (if it exists)
     this.processNextInQueue()
