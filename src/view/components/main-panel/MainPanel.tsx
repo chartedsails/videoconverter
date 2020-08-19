@@ -3,6 +3,7 @@ import clsx from "clsx"
 import React, { useCallback } from "react"
 import { useDropzone } from "react-dropzone"
 import { useAppContext } from "~/view/context/AppContext"
+import { ErrorDialog } from "../errordialog/ErrorDialog"
 import { Footer } from "../footer/Footer"
 import { Header } from "../header/Header"
 import { Settings } from "../header/Settings"
@@ -40,7 +41,7 @@ interface IProps {
 export const MainPanel = ({ className }: IProps) => {
   const classes = useStyles()
 
-  const { addVideo } = useAppContext()
+  const { addVideo, error, clearError } = useAppContext()
   const handleDrop = useCallback(
     (files: File[]) => {
       for (const f of files) {
@@ -63,6 +64,8 @@ export const MainPanel = ({ className }: IProps) => {
       </Paper>
       <VideosContainer className={classes.main} />
       <Footer className={classes.footer} />
+
+      <ErrorDialog error={error} onClose={clearError} open={!!error} />
     </div>
   )
 }

@@ -4,6 +4,7 @@ import {
   TranscodingSetting,
 } from "~/shared/TranscodingSetting"
 import { Video } from "~/shared/Video"
+import { AppError } from "~/shared/VideoConverterIPC"
 
 export interface IAppContext {
   videos: Video[]
@@ -18,6 +19,9 @@ export interface IAppContext {
 
   openPath: (path: string) => void
   openAbout: () => void
+
+  error?: AppError
+  clearError: () => void
 }
 
 const noAppContext: IAppContext = {
@@ -33,6 +37,9 @@ const noAppContext: IAppContext = {
 
   openPath: () => true,
   openAbout: () => true,
+
+  error: undefined,
+  clearError: () => true,
 }
 
 export const AppContext = createContext<IAppContext>(noAppContext)

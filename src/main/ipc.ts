@@ -9,6 +9,7 @@ import {
   TranscodingSetting,
 } from "~/shared/TranscodingSetting"
 import { QueuedVideo, Video } from "~/shared/Video"
+import { AppError } from "~/shared/VideoConverterIPC"
 import { convertVideo } from "./video-processing/convert-video"
 import { extractBase64Thumbnail } from "./video-processing/extract-thumbnail"
 import { getVideoInfo } from "./video-processing/video-info"
@@ -30,10 +31,10 @@ export class AppIPC {
         return
       }
 
-      try {
-        let video: Video = { id: v4(), status: "adding", filepath }
-        this.refreshVideo(video)
+      let video: Video = { id: v4(), status: "adding", filepath }
+      this.refreshVideo(video)
 
+      try {
         video = await getVideoInfo(video)
         this.refreshVideo(video)
 
@@ -41,26 +42,31 @@ export class AppIPC {
           video.thumbnailData = await extractBase64Thumbnail(filepath)
           video = this.updateVideoReadiness(video)
           this.refreshVideo(video)
-
-          this.videos.push(video)
         }
       } catch (e) {
         logger.error(e)
+        this.reportError({
+          title: "Cannot add file",
+          message: "This does not look like a video file.",
+          details: e.message,
+          filename: path.basename(filepath),
+        })
+        const index = this.videos.findIndex((v) => v.id === video.id)
+        this.videos.splice(index, 1)
+        this.refreshAllVideos()
       }
     })
 
     ipcMain.on("queue-video", async (event, video: Video) => {
       logger.debug(`QueueVideo: ${video.filepath}`)
 
-      const index = this.videos.findIndex((v) => v.id === video.id)
-      const v = this.videos[index]
-      if (index !== -1 && v.status === "ready") {
-        this.videos[index] = {
+      const v = this.videos.find((v) => v.id === video.id)
+      if (v && v.status === "ready") {
+        this.refreshVideo({
           ...v,
           status: "queued",
           convertedPath: this.videoDestinationPath(video),
-        }
-        this.refreshVideo(this.videos[index])
+        })
       } else {
         logger.warn(`queue-video called for non-existent video`, video)
       }
@@ -80,7 +86,7 @@ export class AppIPC {
         this.savePreferences()
 
         this.videos = this.videos.map((v) => this.updateVideoReadiness(v))
-        this.videos.forEach((v) => this.refreshVideo(v))
+        this.refreshAllVideos()
       }
     })
 
@@ -95,7 +101,7 @@ export class AppIPC {
     })
 
     ipcMain.on("refresh-all-videos", () => {
-      this.videos.forEach((v) => this.refreshVideo(v))
+      this.refreshAllVideos()
     })
     ipcMain.on("open-path", (e, path: string) => {
       shell.openPath(path)
@@ -105,11 +111,22 @@ export class AppIPC {
     })
   }
 
-  public refreshVideo(media: Video) {
+  public refreshVideo(video: Video) {
+    const index = this.videos.findIndex((v) => v.id === video.id)
+    if (index !== -1) {
+      this.videos[index] = video
+    } else {
+      this.videos.push(video)
+    }
+    this.refreshAllVideos()
+  }
+
+  public refreshAllVideos() {
     for (const window of BrowserWindow.getAllWindows()) {
-      window.webContents.send("update-video", media)
+      window.webContents.send("update-videos", this.videos)
     }
   }
+
   public refreshSettings() {
     for (const window of BrowserWindow.getAllWindows()) {
       window.webContents.send(
@@ -117,6 +134,12 @@ export class AppIPC {
         this.transcodeSetting,
         this.outputFolder
       )
+    }
+  }
+
+  public reportError(e: AppError) {
+    for (const window of BrowserWindow.getAllWindows()) {
+      window.webContents.send("error", e)
     }
   }
 

@@ -38,15 +38,11 @@ const ipcBridge: VideoConverterIPC = {
     logger.debug(`IPC => open-about`)
     ipcRenderer.send("open-about")
   },
-  setVideoUpdatedListener: (listener) => {
-    ipcRenderer.removeAllListeners("update-video")
-    ipcRenderer.on("update-video", (event, video: Video) => {
-      const loggedVideo: any = {
-        ...video,
-        thumbnailData: video.thumbnailData?.slice(0, 42) + "...",
-      }
-      logger.debug(`IPC <= video-update`, loggedVideo)
-      listener(video)
+  setVideosUpdatedListener: (listener) => {
+    ipcRenderer.removeAllListeners("update-videos")
+    ipcRenderer.on("update-videos", (event, videos: Video[]) => {
+      logger.debug(`IPC <= update-videos`)
+      listener(videos)
     })
   },
   setSettingsChangeListener: (listener) => {
@@ -54,6 +50,13 @@ const ipcBridge: VideoConverterIPC = {
     ipcRenderer.on("settings-change", (event, t, f) => {
       logger.debug(`IPC <= settings-change`, t, f)
       listener(t, f)
+    })
+  },
+  setErrorListener: (listener) => {
+    ipcRenderer.removeAllListeners("error")
+    ipcRenderer.on("error", (event, e) => {
+      logger.debug(`IPC <= error`, e)
+      listener(e)
     })
   },
 }

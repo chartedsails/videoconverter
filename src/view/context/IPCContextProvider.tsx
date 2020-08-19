@@ -4,7 +4,7 @@ import {
   TranscodingSetting,
 } from "~/shared/TranscodingSetting"
 import { Video } from "~/shared/Video"
-import { VideoConverterIPC } from "~/shared/VideoConverterIPC"
+import { AppError, VideoConverterIPC } from "~/shared/VideoConverterIPC"
 import { AppContext, IAppContext } from "./AppContext"
 
 const ipcBridge = (window as any)
@@ -34,6 +34,9 @@ export const IPCContextProvider: FC = ({ children }) => {
     transcodingOptions[0]
   )
   const [outputFolder, updateOutputFolder] = useState("")
+  const [error, updateError] = useState<IAppContext["error"]>()
+
+  const handleClearError = useCallback(() => updateError(undefined), [])
 
   const context = useMemo<IAppContext>(
     () => ({
@@ -46,6 +49,8 @@ export const IPCContextProvider: FC = ({ children }) => {
       selectedTranscoding: selectedTranscoding,
       openPath: handleOpenPath,
       openAbout: handleOpenAbout,
+      clearError: handleClearError,
+      error,
     }),
 
     [
@@ -58,19 +63,12 @@ export const IPCContextProvider: FC = ({ children }) => {
       selectedTranscoding,
       handleOpenPath,
       handleOpenAbout,
+      handleClearError,
+      error,
     ]
   )
-  const handleVideoUpdate = useCallback((video: Video) => {
-    updateVideos((currentVideos) => {
-      const index = currentVideos.findIndex((v) => v.id === video.id)
-      if (index === -1) {
-        return [...currentVideos, video]
-      } else {
-        const updated = [...currentVideos]
-        updated[index] = video
-        updateVideos(updated)
-      }
-    })
+  const handleVideosUpdate = useCallback((videos: Video[]) => {
+    updateVideos(videos)
   }, [])
 
   const handleSettingsChange = useCallback(
@@ -81,11 +79,14 @@ export const IPCContextProvider: FC = ({ children }) => {
     []
   )
 
+  const handleError = useCallback((error: AppError) => updateError(error), [])
+
   useEffect(() => {
-    ipcBridge.setVideoUpdatedListener(handleVideoUpdate)
+    ipcBridge.setVideosUpdatedListener(handleVideosUpdate)
     ipcBridge.setSettingsChangeListener(handleSettingsChange)
+    ipcBridge.setErrorListener(handleError)
     ipcBridge.getSettings()
     ipcBridge.refreshAllVideos()
-  }, [handleSettingsChange, handleVideoUpdate])
+  }, [handleError, handleSettingsChange, handleVideosUpdate])
   return <AppContext.Provider value={context}>{children}</AppContext.Provider>
 }

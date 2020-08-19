@@ -160,15 +160,55 @@ stories.add("Bunch of different videos", () => {
     () => ({
       videos,
       outputFolder: "/Users/thomas/Desktop/ChartedSails Videos",
+      selectedTranscoding: transcoding,
+      onTranscodingChange: updateTranscoding,
       // eslint-disable-next-line no-console
       addVideo: (f) => console.log(`add file: `, f),
       // eslint-disable-next-line no-console
       queueVideo: (v) => console.log(`queue video: `, v),
       onOpenSelectFolderDialog: () => true,
-      onTranscodingChange: updateTranscoding,
-      selectedTranscoding: transcoding,
+      openPath: () => true,
+      openAbout: () => true,
+      error: undefined,
+      clearError: () => true,
     }),
     [transcoding]
+  )
+
+  return (
+    <AppContext.Provider value={context}>
+      <MainPanel />
+    </AppContext.Provider>
+  )
+})
+
+stories.add("With error", () => {
+  useScreenStory()
+
+  const [transcoding, updateTranscoding] = useState(transcodingOptions[0])
+  const [error, updateError] = useState<IAppContext["error"] | undefined>({
+    title: "Video Error",
+    filename: "GOPRO42.GPX",
+    message: "This file is not a video.",
+    details: "ffprobe: THIS IS NOT A VIDEO",
+  })
+  const context = useMemo<IAppContext>(
+    () => ({
+      videos,
+      outputFolder: "/Users/thomas/Desktop/ChartedSails Videos",
+      selectedTranscoding: transcoding,
+      onTranscodingChange: updateTranscoding,
+      // eslint-disable-next-line no-console
+      addVideo: (f) => console.log(`add file: `, f),
+      // eslint-disable-next-line no-console
+      queueVideo: (v) => console.log(`queue video: `, v),
+      onOpenSelectFolderDialog: () => true,
+      openPath: () => true,
+      openAbout: () => true,
+      error,
+      clearError: () => updateError(undefined),
+    }),
+    [error, transcoding]
   )
 
   return (
