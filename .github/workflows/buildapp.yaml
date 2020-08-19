@@ -51,6 +51,9 @@ jobs:
           ## Required by the notarized script
           API_KEY_ID: ${{ secrets.api_key_id }}
           API_KEY_ISSUER_ID: ${{ secrets.api_key_issuer_id }}
+        with:
+          # We need a custom token because we access a different repository (chartedsails/app-releases)
+          github_token: ${{ secrets.github_token }}
 
           # If the commit is tagged with a version (e.g. "v1.0.0"),
           # release the app after building
