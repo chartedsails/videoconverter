@@ -50,7 +50,7 @@
     "package": "yarn build && electron-builder --mac ",
     "release": "yarn build && electron-builder --mac --publish always",
     "test": "jest",
-    "precommit": "yarn test"
+    "precommit": "yarn test && lint-staged"
   },
   "main": "./dist/main.js",
   "devDependencies": {
@@ -85,7 +85,9 @@
     "eslint-plugin-react-hooks": "2.x",
     "file-loader": "^6.0.0",
     "html-webpack-plugin": "^4.3.0",
+    "husky": "^4.2.5",
     "jest": "^26.4.0",
+    "lint-staged": "^10.2.11",
     "storybook": "^6.0.7",
     "tsconfig-paths-webpack-plugin": "^3.3.0",
     "typescript": "^3.9.5",
@@ -123,5 +125,16 @@
     "rules": {
       "no-console": 2
     }
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn precommit"
+    }
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint",
+      "prettier"
+    ]
   }
 }
