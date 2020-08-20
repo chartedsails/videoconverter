@@ -32,4 +32,4 @@ jobs:
       # Install with 15 minutes timeout ...
       - run: yarn install --frozen-lockfile --network-timeout 900000
 
-      - run: yarn run storybook-to-ghpages --ci
+      - run: yarn run storybook-to-ghpages -- --ci
