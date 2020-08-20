@@ -50,7 +50,7 @@
     "package": "yarn build && electron-builder --mac ",
     "release": "yarn build && electron-builder --mac --publish always",
     "test": "jest",
-    "precommit": "yarn test && lint-staged"
+    "precommit": "lint-staged && tsc --noEmit --skipLibCheck && yarn test "
   },
   "main": "./dist/main.js",
   "devDependencies": {
