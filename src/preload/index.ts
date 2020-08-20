@@ -42,6 +42,10 @@ const ipcBridge: VideoConverterIPC = {
     logger.debug(`IPC => open-about`)
     ipcRenderer.send("open-about")
   },
+  startDragging: (video) => {
+    logger.debug(`IPC => start-dragging`)
+    ipcRenderer.send("start-dragging", video)
+  },
   setVideosUpdatedListener: (listener) => {
     ipcRenderer.removeAllListeners("update-videos")
     ipcRenderer.on("update-videos", (event, videos: Video[]) => {

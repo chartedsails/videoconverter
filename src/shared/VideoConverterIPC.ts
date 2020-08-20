@@ -18,6 +18,7 @@ export interface VideoConverterIPC {
   openPath: (path: string) => void
   openAbout: () => void
   removeVideo: (video: Video) => void
+  startDragging: (video: Video) => void
 
   setVideosUpdatedListener: (listener: (videos: Video[]) => void) => void
   setSettingsChangeListener: (

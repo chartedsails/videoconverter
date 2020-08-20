@@ -11,6 +11,7 @@ export interface IAppContext {
   addVideo: (filepath: string) => void
   removeVideo: (video: Video) => void
   queueVideo: (video: Video) => void
+  startDragging: (video: Video) => void
 
   outputFolder: string
   onOpenSelectFolderDialog: () => void
@@ -30,6 +31,7 @@ const noAppContext: IAppContext = {
   addVideo: () => true,
   removeVideo: () => true,
   queueVideo: () => true,
+  startDragging: () => true,
 
   outputFolder: "My Videos/ChartedSails",
   onOpenSelectFolderDialog: () => true,

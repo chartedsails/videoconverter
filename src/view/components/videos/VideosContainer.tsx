@@ -20,7 +20,13 @@ interface IProps {
 
 export const VideosContainer = ({ className }: IProps) => {
   const classes = useStyles()
-  const { videos, queueVideo, openPath, removeVideo } = useAppContext()
+  const {
+    videos,
+    queueVideo,
+    openPath,
+    removeVideo,
+    startDragging,
+  } = useAppContext()
 
   return (
     <div className={clsx(classes.root, className)}>
@@ -37,6 +43,13 @@ export const VideosContainer = ({ className }: IProps) => {
               v.status === "converted" && openPath(v.convertedPath)
             }
             onRemove={() => removeVideo(v)}
+            onDragStart={(e) => {
+              e.preventDefault()
+              startDragging(v)
+            }}
+            onDrop={(e) => {
+              removeVideo(v)
+            }}
           />
         ))}
       </div>

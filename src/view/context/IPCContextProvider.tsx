@@ -27,6 +27,9 @@ export const IPCContextProvider: FC = ({ children }) => {
   const handleQueueVideo = useCallback((v: Video) => {
     ipcBridge.queueVideo(v)
   }, [])
+  const handleStartDragging = useCallback((v: Video) => {
+    ipcBridge.startDragging(v)
+  }, [])
   const handleOpenPath = useCallback((path: string) => {
     ipcBridge.openPath(path)
   }, [])
@@ -48,6 +51,7 @@ export const IPCContextProvider: FC = ({ children }) => {
       addVideo: handleAddVideo,
       removeVideo: handleRemoveVideo,
       queueVideo: handleQueueVideo,
+      startDragging: handleStartDragging,
       onOpenSelectFolderDialog: handleSelectOutputFolder,
       onTranscodingChange: handleTranscodingChange,
       selectedTranscoding: selectedTranscoding,
@@ -56,12 +60,13 @@ export const IPCContextProvider: FC = ({ children }) => {
       clearError: handleClearError,
       error,
     }),
-
     [
       outputFolder,
       videos,
       handleAddVideo,
+      handleRemoveVideo,
       handleQueueVideo,
+      handleStartDragging,
       handleSelectOutputFolder,
       handleTranscodingChange,
       selectedTranscoding,

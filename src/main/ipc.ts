@@ -1,9 +1,17 @@
-import { app, BrowserWindow, dialog, ipcMain, shell } from "electron"
+import {
+  app,
+  BrowserWindow,
+  dialog,
+  ipcMain,
+  nativeImage,
+  shell,
+} from "electron"
 import logger from "electron-log"
 import { FfmpegCommand } from "fluent-ffmpeg"
 import fs from "fs"
 import path from "path"
 import { v4 } from "uuid"
+import MovieIcon from "~/assets/movie.png"
 import { openVideoConverterAboutWindow } from "~/shared/about-window"
 import {
   transcodingOptions,
@@ -30,6 +38,24 @@ export class AppIPC {
 
       // Skip if we already have this video
       if (this.videos.find((v) => v.filepath === filepath)) {
+        return
+      }
+      // Skip if the user is dragging a video from the video converter to the video converter
+      if (
+        this.videos.find(
+          (v) => v.status === "converted" && v.convertedPath === filepath
+        )
+      ) {
+        return
+      }
+
+      const extension = path.extname(filepath).toLowerCase()
+      if ([".mp4", ".mov", ".avi", ".mpg", ".mpeg"].indexOf(extension) === -1) {
+        logger.error(`Unsupported extension ${extension} for ${filepath}`)
+        this.reportError({
+          title: "Cannot add file",
+          message: "This does not look like a video file.",
+        })
         return
       }
 
@@ -126,6 +152,15 @@ export class AppIPC {
     })
     ipcMain.on("open-about", (e) => {
       openVideoConverterAboutWindow()
+    })
+    ipcMain.on("start-dragging", (e, video: Video) => {
+      if (video.status === "converted")
+        e.sender.startDrag({
+          file: video.convertedPath,
+          icon: video.thumbnailData
+            ? nativeImage.createFromDataURL(video.thumbnailData)
+            : path.join(__dirname, MovieIcon),
+        })
     })
   }
 

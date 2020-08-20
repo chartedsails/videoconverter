@@ -1,5 +1,4 @@
 import {
-  Chip,
   CircularProgress,
   Fab,
   Fade,
@@ -10,20 +9,18 @@ import {
   Tooltip,
   Typography,
 } from "@material-ui/core"
-import ResolutionIcon from "@material-ui/icons/AspectRatio"
-import ConversionNotNeededIcon from "@material-ui/icons/BeenhereTwoTone"
 import CheckCircleOutlineIcon from "@material-ui/icons/CheckCircleOutline"
 import ErrorOutlineIcon from "@material-ui/icons/ErrorOutline"
-import ConversionNeededIcon from "@material-ui/icons/FitnessCenterTwoTone"
 import HighlightOffIcon from "@material-ui/icons/HighlightOff"
 import ImageMissing from "@material-ui/icons/ImageTwoTone"
-import GPSIcon from "@material-ui/icons/SatelliteTwoTone"
 import SlowMotionVideoIcon from "@material-ui/icons/SlowMotionVideo"
 import clsx from "clsx"
 import React, { useState } from "react"
 import { Video } from "~/shared/Video"
 import { formatChrono } from "~/util/format-duration"
 import { formatBytes } from "~/util/format-size"
+import { ConversionChip, ResolutionChip, TelemetryChip } from "./chips"
+
 const useStyles = makeStyles((theme) => ({
   root: {
     margin: theme.spacing(2),
@@ -72,37 +69,9 @@ interface IProps {
   onOpenConvertedVideo?: () => void
   onOpenOriginalVideo?: () => void
   onRemove?: () => void
+  onDragStart?: (e: React.DragEvent) => void
+  onDrop?: (e: React.DragEvent) => void
 }
-
-const TelemetryChip = ({ value }: { value: boolean }) => (
-  <Chip
-    color={value ? "primary" : "default"}
-    label={value ? "Telemetry Available" : "No Telemetry"}
-    icon={<GPSIcon />}
-  />
-)
-const ResolutionChip = ({
-  width,
-  height,
-  framerate,
-}: {
-  width: number
-  height: number
-  framerate: number
-}) => (
-  <Chip
-    color="primary"
-    label={`${width}x${height}@${framerate}`}
-    icon={<ResolutionIcon />}
-  />
-)
-const ConversionChip = ({ value }: { value: boolean }) => (
-  <Chip
-    color={value ? "secondary" : "default"}
-    label={value ? "Conversion required" : "No conversion required"}
-    icon={value ? <ConversionNeededIcon /> : <ConversionNotNeededIcon />}
-  />
-)
 
 export const VideoPanel = ({
   className,
@@ -111,6 +80,8 @@ export const VideoPanel = ({
   onOpenConvertedVideo,
   onOpenOriginalVideo,
   onRemove,
+  onDragStart,
+  onDrop,
 }: IProps) => {
   const classes = useStyles()
 
@@ -124,6 +95,9 @@ export const VideoPanel = ({
       className={clsx(classes.root, className)}
       onMouseEnter={() => updateIsHovering(true)}
       onMouseLeave={() => updateIsHovering(false)}
+      onDragStart={onDragStart}
+      onDrop={onDrop}
+      draggable
     >
       <div className={classes.thumbnail}>
         {video.thumbnailData ? (
