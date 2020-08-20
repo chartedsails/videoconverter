@@ -28,7 +28,7 @@ export const Header = ({ className }: IProps) => {
     <div className={clsx(classes.root, className)}>
       <img src={chartedSailsLogo} alt="ChartedSails logo" />
       <div>
-        <Typography variant="h3">ChartedSails VideoConverter</Typography>
+        <Typography variant="h3">Action Video Converter by ChartedSails</Typography>
         <Typography>
           Quickly reduce file size - Keep GPS and telemetry data - Save time and
           disk space!
