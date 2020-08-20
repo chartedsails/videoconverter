@@ -33,3 +33,5 @@ jobs:
       - run: yarn install --frozen-lockfile --network-timeout 900000
 
       - run: yarn run storybook-to-ghpages -- --ci
+        env:
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
