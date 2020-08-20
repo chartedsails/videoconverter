@@ -1,11 +1,11 @@
-name: Build/release
+name: Build/storybook
 on:
   push:
     branches:
       - "master"
 
 jobs:
-  release:
+  storybook:
     runs-on: ubuntu-latest
 
     steps:
