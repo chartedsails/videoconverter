@@ -6,7 +6,7 @@
     "name": "Thomas Sarlandie",
     "email": "thomas@chartedsails.com"
   },
-  "version": "0.0.2",
+  "version": "0.0.3",
   "private": true,
   "build": {
     "appId": "com.chartedsails.videoconverter",
